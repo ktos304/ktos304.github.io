@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Wchodzenie do serwisu...</title>
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #0f172a;
+            color: #f8fafc;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading {
+            text-align: center;
+        }
+
+        .loading h2 {
+            margin-bottom: 10px;
+        }
+
+        .loading p {
+            color: #94a3b8;
+        }
+    </style>
+
+    <script>
+        // Nadaj dostęp
+        sessionStorage.setItem('authorized', 'true');
+
+        // Przekieruj do gen.html
+        window.location.replace('gen.html');
+    </script>
+</head>
+
+<body>
+    <div class="loading">
+        <h2>Ładowanie...</h2>
+        <p>Przekierowywanie do serwisu.</p>
+    </div>
+</body>
+</html>0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        h2 {
+            margin-top: 0;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        .input-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 15px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: white;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus {
+            border-color: var(--primary);
+        }
+        button {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            font-weight: 600;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        #error-msg {
+            color: var(--error);
+            font-size: 14px;
+            margin-top: 16px;
+            min-height: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <h2>Podaj dostęp</h2>
+        <p class="subtitle">Wprowadź swój token, aby przejść dalej</p>
+        
+        <div class="input-group">
+            <input type="text" id="token-input" placeholder="Wpisz token..." autocomplete="off">
+        </div>
+        <button id="submit-btn" onclick="checkToken()">Wejdź do serwisu</button>
+        
+        <div id="error-msg"></div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://rpmxzjdqcncwmjbegvld.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwbXh6amRxY25jd21qYmVndmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4NTAxNTIsImV4cCI6MjEwMzQyNjE1Mn0.5Vl--_6IGK546mZPvzVujkWjscYzQmfzjnXeROBx3pE';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function checkToken() {
+            const userToken = document.getElementById('token-input').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+            const submitBtn = document.getElementById('submit-btn');
+            errorMsg.innerText = '';
+
+            if (!userToken) {
+                errorMsg.innerText = 'Pole tokenu nie może być puste!';
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Sprawdzanie...';
+
+            try {
+                // Pobierz token z bazy danych Supabase
+                const { data, error } = await supabaseClient
+                    .from('tokens') // <-- Nazwa Twojej tabeli
+                    .select('*')
+                    .eq('token', userToken)
+                    .single();
+
+                if (error || !data) {
+                    errorMsg.innerText = 'Nieprawidłowy token.';
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'Wejdź do serwisu';
+                    return;
+                }
+
+                // Sprawdź liczbę użyć
+                if (data.uses_left <= 0) {
+                    errorMsg.innerText = 'Ten token został w pełni wykorzystany.';
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'Wejdź do serwisu';
+                    return;
+                }
+
+                // Sprawdź czas ważności
+                if (data.expires_at && new Date(data.expires_at) < new Date()) {
+                    errorMsg.innerText = 'Ten token wygasł.';
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'Wejdź do serwisu';
+                    return;
+                }
+
+                // Zmniejsz licznik użyć w bazie o 1
+                const { error: updateError } = await supabaseClient
+                    .from('tokens') // <-- Nazwa Twojej tabeli
+                    .update({ uses_left: data.uses_left - 1 })
+                    .eq('id', data.id);
+
+                if (updateError) {
+                    errorMsg.innerText = 'Błąd systemowy aktualizacji tokenu.';
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'Wejdź do serwisu';
+                    return;
+                }
+
+                // Autoryzacja powiodła się - zapisz sesję i przekieruj do gen.html
+                sessionStorage.setItem('authorized', 'true');
+                window.location.href = 'gen.html';
+
+            } catch (err) {
+                errorMsg.innerText = 'Wystąpił błąd połączenia z bazą.';
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Wejdź do serwisu';
+            }
+        }
+
+        // Obsługa klawisza Enter
+        document.getElementById('token-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkToken();
+            }
+        });
+    </script>
+</body>
+</html>
