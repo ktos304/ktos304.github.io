@@ -81,24 +81,24 @@
     const issueDate = params.get("issue_date");
 
     if (issueDate) {
+        // Pokazuje dokładnie datę wydania z generatora
         document.getElementById("issue_date").textContent = issueDate;
 
-        const parts = issueDate.split(".");
-        const day = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10);
-        const year = parseInt(parts[2], 10);
+        // Odczyt DD.MM.RRRR
+        const [day, month, year] = issueDate.split(".").map(Number);
 
-        const expiry = new Date(year + 10, month - 1, day);
-        expiry.setDate(expiry.getDate() - 1);
+        // +10 lat, następnie -1 dzień
+        const expiryDate = new Date(year + 10, month - 1, day);
+        expiryDate.setDate(expiryDate.getDate() - 1);
 
-        const expiryDay = String(expiry.getDate()).padStart(2, "0");
-        const expiryMonth = String(expiry.getMonth() + 1).padStart(2, "0");
-        const expiryYear = expiry.getFullYear();
+        const expiryDay = String(expiryDate.getDate()).padStart(2, "0");
+        const expiryMonth = String(expiryDate.getMonth() + 1).padStart(2, "0");
+        const expiryYear = expiryDate.getFullYear();
 
         document.getElementById("expiry_date").textContent =
             `${expiryDay}.${expiryMonth}.${expiryYear}`;
     }
 </script>
-
+  
 </body>
 </html>
