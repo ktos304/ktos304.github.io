@@ -45,12 +45,12 @@
 
                 <div class="field">
                     <label>Termin ważności</label>
-                    <strong>13.04.2032</strong>
+                    <strong id="expiry_date"></strong>
                 </div>
             
                 <div class="field">
                     <label>Data wydania</label>
-                    <strong>14.07.2022</strong>
+                    <strong id="issue_date"></strong>
                 </div>
             
             </div>
@@ -73,7 +73,32 @@
   </div>
 </div>
         <script src="assets/bar.js" defer></script>
-        <script src="assets/card.js?v=1.0"></script>
-        <script src="assets/manifest.js"></script>
+<script src="assets/card.js?v=1.0"></script>
+<script src="assets/manifest.js"></script>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const issueDate = params.get("issue_date");
+
+    if (issueDate) {
+        document.getElementById("issue_date").textContent = issueDate;
+
+        const parts = issueDate.split(".");
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10);
+        const year = parseInt(parts[2], 10);
+
+        const expiry = new Date(year + 10, month - 1, day);
+        expiry.setDate(expiry.getDate() - 1);
+
+        const expiryDay = String(expiry.getDate()).padStart(2, "0");
+        const expiryMonth = String(expiry.getMonth() + 1).padStart(2, "0");
+        const expiryYear = expiry.getFullYear();
+
+        document.getElementById("expiry_date").textContent =
+            `${expiryDay}.${expiryMonth}.${expiryYear}`;
+    }
+</script>
+
 </body>
 </html>
