@@ -113,21 +113,7 @@ setData("father_name", data["father_name"]);
 setData("mother_name", data["mother_name"]);
 setData("adress", "ul. " + data['adress1'] + "<br>" + data['adress2'] + " " + data['city']);
 
-if (localStorage.getItem("homeDate") == null){
-  var homeDay = getRandom(1, 25);
-  var homeMonth = getRandom(0, 12);
-  var homeYear = getRandom(2012, 2019);
-
-  var homeDate = new Date();
-  homeDate.setDate(homeDay);
-  homeDate.setMonth(homeMonth);
-  homeDate.setFullYear(homeYear)
-
-  localStorage.setItem("homeDate", homeDate.toLocaleDateString("pl-PL", options))
-}
-
-document.querySelector(".home_date").innerHTML = localStorage.getItem("homeDate")
-
+document.querySelector(".home_date").innerHTML = data['home_date'] || "";
 if (parseInt(year) >= 2000){
   month = 20 + month;
 }
