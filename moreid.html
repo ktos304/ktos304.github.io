@@ -40,7 +40,7 @@
                 
                 <div class="field">
                     <label>Organ wydający</label>
-                    <strong>URZĄD MIASTA WARSZAWA</strong>
+                    <strong id="issuingAuthority"></strong>
                 </div>
 
                 <div class="field">
@@ -77,6 +77,16 @@
 
 <script>
     const params = new URLSearchParams(window.location.search);
+
+    // ORGAN WYDAJĄCY
+    const issuingAuthority = params.get("issuing_authority");
+
+    if (issuingAuthority) {
+        document.getElementById("issuing_authority").textContent =
+            issuingAuthority;
+    }
+
+    // DATA WYDANIA + TERMIN WAŻNOŚCI
     const issueDate = params.get("issue_date");
 
     if (issueDate) {
