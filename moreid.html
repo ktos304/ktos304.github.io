@@ -78,25 +78,20 @@
 <script>
     const params = new URLSearchParams(window.location.search);
 
-    // ORGAN WYDAJĄCY
-    const issuingAuthority = params.get("issuing_authority");
+    const issuingAuthority = params.get("issuingAuthority");
 
     if (issuingAuthority) {
         document.getElementById("issuing_authority").textContent =
             issuingAuthority;
     }
 
-    // DATA WYDANIA + TERMIN WAŻNOŚCI
     const issueDate = params.get("issue_date");
 
     if (issueDate) {
-        // Pokazuje dokładnie datę wydania z generatora
         document.getElementById("issue_date").textContent = issueDate;
 
-        // Odczyt DD.MM.RRRR
         const [day, month, year] = issueDate.split(".").map(Number);
 
-        // +10 lat, następnie -1 dzień
         const expiryDate = new Date(year + 10, month - 1, day);
         expiryDate.setDate(expiryDate.getDate() - 1);
 
