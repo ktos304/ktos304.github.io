@@ -106,6 +106,7 @@ setData("fathersFamilyName", data['fathersFamilyName']);
 setData("mothersFamilyName", data['mothersFamilyName']);
 setData("birthPlace", data['birthPlace']);
 setData("countryOfBirth", data['countryOfBirth']);
+setData("mdow_series", data["mdow_series"]);
 setData("adress", "ul. " + data['adress1'] + "<br>" + data['adress2'] + " " + data['city']);
 
 if (localStorage.getItem("homeDate") == null){
